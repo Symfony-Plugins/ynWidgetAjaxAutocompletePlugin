@@ -1,0 +1,43 @@
+#sf_admin_container input.yn-autocomplete, input.yn-autocomplete{
+  width: 150px;
+}
+#sf_admin_container input.yn-autocomplete-buttons, input.yn-autocomplete-buttons{
+  float: left;
+  margin-right: -28px;
+}
+.yn-autocomplete-edit-button{
+  position: relative;
+  cursor: pointer;
+  float: left;
+  left: -18px;
+  width: 14px;
+}
+.yn-autocomplete-delete-button{
+  position: relative;
+  cursor: pointer;
+  float: left;
+  left: 10px;
+  width: 14px;
+}
+.yn-autocomplete-selected-list{
+  margin: 0;
+  padding: 0;
+}
+.yn-autocomplete-selected-list li{
+  list-style: none;
+  margin: 0;
+  padding: 0.4em 0;
+  width: 150px;
+}
+.yn-autocomplete-selected-list li div{
+  width: 16px;
+  margin: 0 6px 0 0px;
+  cursor: pointer;
+  float: left;
+}
+.yn-autocomplete-aux-link{
+  margin: 0 0 0 0.8em;
+}
+.yn-autocomplete-clear{
+  clear: both;
+}
