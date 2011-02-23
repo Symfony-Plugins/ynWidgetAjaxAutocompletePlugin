@@ -1,14 +1,14 @@
 function YNAutocompleteInput( meta_span )
 {
-  select       = $(meta_span).siblings('select').get(0);
-  this.base_id = select.id;
-  this.name    = select.name;
-  this.state   = [];
+  select             = $(meta_span).siblings('select').get(0);
+  this.base_id       = select.id;
+  this.name          = select.name;
+  this.multiple      = select.multiple;
+  this.state         = [];
+  this.initial_value = {};
 
   this.edit_button   = null;
   this.delete_button = null;
-
-  $(select).remove();
 
   this.container = $(meta_span).parent();
   this.metadata  = $.parseJSON( meta_span.title );
@@ -20,11 +20,24 @@ YNAutocompleteInput.prototype.init = function()
   this.input.id        = this.base_id + '_autocomplete';
   this.input.className = 'yn-autocomplete';
 
-  for ( key in this.metadata.initial_value ) {
-    this.state.push( key );
-  }
+  // hard-coded defaults
+  options = {
+    source:    this.metadata.source,
+    delay:     300,
+    minLength: 3
+  };
 
-  if ( ! this.metadata.multiple ) {
+  // merge default options with provided options
+  $.extend( options, this.metadata.options );
+
+  // collect selected <option>s and transform into widget choices
+  $('#' + this.base_id + ' option[selected="selected"]').each(
+    yn_autocomplete_set_initial_value( this )
+  );
+
+  $('#' + this.base_id).remove();
+
+  if ( ! this.multiple ) {
     this.edit_button           = document.createElement( 'span' );
     this.edit_button.id        = this.base_id + '_edit';
     this.edit_button.title     = 'Edit';
@@ -46,16 +59,7 @@ YNAutocompleteInput.prototype.init = function()
 
   $(this.input).prependTo( this.container );
 
-  options = {
-    source:    this.metadata.source,
-    delay:     500,
-    minLength: 3
-  };
-
-  // merge default options with provided options
-  $.extend( options, this.metadata.options );
-
-  if ( this.metadata.multiple ) {
+  if ( this.multiple ) {
     this.init_ul();
 
     options.select = yn_autocomplete_multiple_select( this );
@@ -71,7 +75,6 @@ YNAutocompleteInput.prototype.init = function()
                  .addClass('yn-autocomplete-single')
                  .focus( function() {this.value = '';} );
 
-    this.input.value = this.metadata.initial_value[ this.state[0] ];
     this.input.last_known_value = this.input.value;
     
     clear = document.createElement( 'div' );
@@ -90,8 +93,8 @@ YNAutocompleteInput.prototype.init_ul = function() {
 
   $(this.ul).appendTo( this.container );
 
-  for ( key in this.metadata.initial_value ) {
-    this.add_li( key, this.metadata.initial_value[ key ], false );
+  for ( key in this.initial_value ) {
+    this.add_li( key, this.initial_value[ key ], false );
   }
 }
 
@@ -167,6 +170,20 @@ function yn_autocomplete_multiple_remove( input_obj )
   }
 }
 
+function yn_autocomplete_set_initial_value( input_obj )
+{
+  return function() {
+    input_obj.state.push( this.value );
+    input_obj.initial_value[ this.value ] = this.innerHTML;
+
+    if ( ! input_obj.multiple ) {
+      // TODO: don't use innerHTML
+      // TODO: refactor this someplace else? seems out of place here
+      input_obj.input.value = this.innerHTML;
+    }
+  }
+}
+
 function yn_autocomplete_single_select( input_obj )
 {
   return function( e, ui ) {
@@ -218,7 +235,7 @@ function yn_autocomplete_item_click( input_obj, key )
 function yn_autocomplete_form_preprocess( input_obj )
 {
   return function() {
-    if ( input_obj.metadata.multiple ) {
+    if ( input_obj.multiple ) {
       for ( key in input_obj.state ) {
         input       = document.createElement( 'input' );
         input.name  = input_obj.name;

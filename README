@@ -1,4 +1,4 @@
-# ynWidgetAjaxAutocomplete plugin (for symfony 1.3-1.4) #
+# ynWidgetAjaxAutocomplete plugin (for symfony 1.3 - 1.4) #
 
 The `ynWidgetAjaxAutocompletePlugin` is a symfony plugin that provides an AJAX
 autocomplete replacement for `sfWidgetForm*Choice`. It uses the jQueryUI
@@ -6,15 +6,15 @@ Autocomplete widget.
 
 ## Installation ##
 
-  * Install the plugin (via a package)
+  * Install the plugin (via a package - **not currently available**)
 
         symfony plugin:install ynWidgetAjaxAutocompletePlugin
 
-  * Install the plugin (via a Subversion checkout)
+  * Install the plugin (via Subversion checkout)
 
-        svn co http//svn.symfony-project.com/plugins/ynWidgetAjaxAutocompletePlugin/trunk plugins/ynWidgetAjaxAutocompletePlugin
+        svn co http://svn.symfony-project.com/plugins/ynWidgetAjaxAutocompletePlugin/tags/0.1.0b1 plugins/ynWidgetAjaxAutocompletePlugin
 
-  * Activate the plugin in the `config/ProjectConfiguration.class.php`
+  * Activate the plugin in your project's `config/ProjectConfiguration.class.php`
 
         class ProjectConfiguration extends sfProjectConfiguration
         {
@@ -44,99 +44,117 @@ want/need to maintain a local copy):
 
 ## Utilization ##
 
-To add the plugin to your form:
+To implement the plugin to your form:
 
-  * Create an AJAX action to populate the autocomplete. The widget will
-supply these parameters:
+  * You will need an AJAX handler to populate the autocomplete.
+If you wish to use the included AJAX actions, enable the appropriate module
+in the plugin's `settings.yml` (see the example below). The Propel version
+has not yet been written,
+but it will be easy to create (just write one generic action), if you are
+using Propel. Alternately can also enable the AJAX module at the application level,
+in your application's `settings.yml`.
+
+        all:
+          .settings:
+            enabled_modules:
+              - ynWidgetAjaxAutocompleteDoctrine
+              # - ynWidgetAjaxAutocompletePropel
+
+  * Make your `Doctrine_Table` or `*Peer` class implement
+ynWidgetAjaxTableCreate, and write `retrieveForYnAjax(). The AJAX action
+will supply these parameters:
     * `term` - the value to match
-    * `not` - keys to exclude, separated by commas
     * `limit` - the greatest number of results to return
+    * `not` - keys to exclude, separated by commas
 
-            public function executeAjax( sfWebRequest $request )
+            class PersonTable extends Doctrine_Table implements ynWidgetAjaxTable
             {
-              $this->getResponse()->setContentType('application/json');
+              /**
+               * Returns a JSON-encoded array of persons based on an AJAX-requested query
+               *
+               * @param string $term
+               * @param int $limit
+               * @param array $not Exclude these IDs
+               */
+              public static function retrieveForYNAjax( $term, $limit = 10, array $not = array() )
+              {
+                $q = self::getInstance()
+                  ->createQuery('p')
+                  ->where('p.name LIKE ?', $term.'%')
+                  ->limit( $limit )
+                  ->orderBy('p.last_name, p.first_name ASC')
+                  ;
 
-              if ( $request->getParameter('limit') ) {
-                $limit = $request->getParameter('limit');
-              }
-              else {
-                $limit = 10;
-              }
+                if ( $not ) {
+                  $q->whereNotIn('p.id', $not);
+                }
 
-              $not = explode( ',', $request->getParameter('not') );
-
-              $objects = Doctrine::getTable('Person')
-                ->retrieveForAjax( $request->getParameter('term'), $limit, $not );
-
-              $ajax_array = array();
-
-              foreach ( $objects as $object ) {
-                $ajax_array[] = array(
-                  'id' => $object->getId(), 'value' => (string) $object
-                );
-              }
-
-              return $this->renderText( json_encode($ajax_array) );
-            }
-
-            /*
-             * and in PersonTable:
-             */
-
-
-            /**
-             * Returns a JSON-encoded array of towns based on an AJAX-requested query
-             *
-             * @param string $q
-             * @param int $limit
-             * @param array int[] $not Exclude these IDs
-             */
-            public static function retrieveForAjax( $q, $limit = 10, array $not = array() )
-            {
-              $q = self::getInstance()
-                ->createQuery('p')
-                ->where('p.name LIKE ?', '%'.$q.'%')
-                ->limit( $limit )
-                ->orderBy('p.last_name, p.first_name ASC')
-                ;
-
-              if ( $not ) {
-                $q->whereNotIn('p.id', $not);
+                return $q->execute();
               }
 
-              return $q->execute();
-            }
 
-
-  * Now, add the widget to your form, with some options.
-    * You will replace the default widget, but you must pass the default to
-the new widget as the `noscript_widget` argument.
-    * Supply the default value(s) as an associative array of `id => name`,
-as `default`. For example:
-
-            array(
-              8  => 'John Doe',
-              27 => 'Jim Doe',
-            )
-
+  * Now, add the widget to your form, with some options. The autocomplete
+will visually replace the default widget on the page, but you must pass
+that widget as the `noscript_widget` option. This allows the plugin's
+Javascript to extract data from the stock <select> element, as well as
+providing for graceful degradation.
     * Supply the route of the AJAX action as `source`. Include the `not`
-parameter if you wish to exclude one or more records (comma-separated IDs).
-    * Supply a pattern to link to the referenced record as `item_url`. The
-`9999999999` is a placeholder that appeared to be necessary in order to pass
-the value through `url_for()` It is substituted out in `autocomplete.js`.
-    * Specify whether one-to-many or many-to-many with `multiple`.
-    * Supply a URL to link on the side of the widget, e.g. to create a new
+parameter as comma-separated IDs, if you wish to exclude one or more records.
+This is useful if you are dealing with a nested relation, to avoid associating
+the record with itself.
+    * Supply a pattern for linking to the referenced record as `item_url`. The
+`9999999999` is a placeholder for JS processing; it appears that it must be
+an integer (as opposed to something standard like `%`) in order to work with
+`url_for()`.
+    * Supply a URL for a link next to the widget, e.g. to create a new
 record of the referenced class, as `aux_url` (optional)
+
+            /* in FooForm */
+
+            // handy for composing paths
+            sfProjectConfiguration::getActive()->loadHelpers('Url');
 
             $this_id = $this->getObject()->getId();
 
-            $this->widgetSchema['sons_list'] = new ynWidgetAjaxAutocomplete(
+            $this->widgetSchema['animals_list'] = new ynWidgetAjaxAutocomplete(
               array(
-                'noscript_widget' => $this->widgetSchema['sons_list'],
-                'default'         => $this->getObject()->getSonStringArray(),
-                'source'          => '/backend.php/person/ajax?not='.$this_id,
-                'multiple'        => true,
-                'aux_url'         => url_for( 'person/new' ),
-                'item_url'        => url_for( 'person/edit?id=9999999999' ),
+                'noscript_widget' => $this->widgetSchema['animals_list'],
+                'source'          => url_for( 'ynwidgetajax/animal' ),
+                'item_url'        => url_for( 'animal/edit?id=9999999999' ),
+                'aux_url'         => url_for( 'animal/new' ),
               )
             );
+
+And that's it! You should now have a working AJAX autocomplete widget on
+your form.
+
+## jQueryUI ##
+
+See also **LINK TO JQUERYUI HERE**
+
+Since this plugin extends the jQueryUI Autocomplete widget, you can easily
+substitute the theme of your choosing. Pass the path of your main theme CSS
+file as the `theme_css` option.
+
+The included jQueryUI library contains only the widgets necessary for the
+plugin. If you need other widgets, you can change the path to the jQueryUI
+library, or remove it entirely if you have loaded it via `view.yml` or
+some other means. Pass either the path or `null` as the `jqueryui_js`
+option.
+
+You can pass options to the jQueryUI Autocomplete widget itself as
+`autocomplete_options`.
+
+For example:
+
+        $this->widgetSchema['animals_list'] = new ynWidgetAjaxAutocomplete(
+          array(
+            'noscript_widget' => $this->widgetSchema['animals_list'],
+            'source'          => url_for( 'ynwidgetajax/animal' ),
+            'item_url'        => url_for( 'animal/edit?id=9999999999' ),
+            'aux_url'         => url_for( 'animal/new' ),
+            'theme_css'       => '/path/to/my/jquery-ui.css',
+            'jqueryui_js'     => null,  // will not load jQueryUI from this plugin
+            'autocomplete_options' => array( 'minLength' => 4 ),
+          )
+        );

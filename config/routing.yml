@@ -1,0 +1,7 @@
+ajax:
+  url:   /ynwidgetajax/:table/*
+  param: { module: ynWidgetAjaxAutocompleteDoctrine, action: retrieve }
+
+#ajax:
+#  url:   /ynwidgetajax/:table/*
+#  param: { module: ynWidgetAjaxAutocompletePropel, action: retrieve }

@@ -5,11 +5,18 @@ class ynWidgetAjaxAutocomplete extends sfWidgetForm
   {
     parent::configure( $options, $attributes );
 
+    $theme_css = '/ynWidgetAjaxAutocompletePlugin/css/smoothness'
+                 . '/jquery-ui-1.8.9.custom.css';
+
+    $jqueryui_js = '/ynWidgetAjaxAutocompletePlugin/js'
+                 . '/jquery-ui-1.8.9.custom.min.js';
+
     $this->addRequiredOption( 'source' );
     $this->addRequiredOption( 'noscript_widget' );
+    $this->addOption( 'theme_css', $theme_css );
+    $this->addOption( 'jqueryui_js', $jqueryui_js );
     $this->addOption( 'autocomplete_options', array() );
     $this->addOption( 'default', array() );
-    $this->addOption( 'multiple', false );
     $this->addOption( 'item_url', null );
     $this->addOption( 'aux_url', null );
     $this->addOption( 'aux_link_text', 'Create new' );
@@ -27,8 +34,6 @@ class ynWidgetAjaxAutocomplete extends sfWidgetForm
 
     $metadata = array(
       'source'        => $this->getOption('source'),
-      'initial_value' => $this->getOption('default'),
-      'multiple'      => $this->getOption('multiple'),
       'item_url'      => $this->getOption('item_url'),
       'options'       => $this->getOption('autocomplete_options'),
     );
@@ -56,17 +61,24 @@ class ynWidgetAjaxAutocomplete extends sfWidgetForm
   public function getStylesheets()
   {
     return array(
-      '/ynWidgetAjaxAutocompletePlugin/css/smoothness/jquery-ui-1.8.9.custom.css' => 'all',
+      $this->getOption('theme_css') => 'all',
       '/ynWidgetAjaxAutocompletePlugin/css/autocomplete.css' => 'all',
     );
   }
 
   public function getJavascripts()
   {
-    return array(
-      '/ynWidgetAjaxAutocompletePlugin/js/jquery-ui-1.8.9.custom.min.js',
-      '/ynWidgetAjaxAutocompletePlugin/js/autocomplete.js',
-    );
+    if ( $jqueryui_js = $this->getOption('jqueryui_js') ) {
+      return array(
+        $jqueryui_js,
+        '/ynWidgetAjaxAutocompletePlugin/js/autocomplete.js',
+      );
+    }
+    else {
+      return array(
+        '/ynWidgetAjaxAutocompletePlugin/js/autocomplete.js',
+      );
+    }
   }
 
   /**
