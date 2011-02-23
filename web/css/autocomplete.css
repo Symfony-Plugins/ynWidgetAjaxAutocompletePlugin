@@ -41,3 +41,6 @@
 .yn-autocomplete-clear{
   clear: both;
 }
+.ui-autocomplete .ui-menu-item{
+  list-style: none;
+}
