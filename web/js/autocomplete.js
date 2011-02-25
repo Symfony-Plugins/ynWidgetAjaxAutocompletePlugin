@@ -154,8 +154,15 @@ YNAutocompleteInput.prototype.update_single_buttons = function() {
 function yn_autocomplete_multiple_select( input_obj )
 {
   return function( e, ui ) {
-    input_obj.state.push( ui.item.id );
-    input_obj.add_li( ui.item.id, ui.item.value, true );
+    if ( -1 == $.inArray( ui.item.id, input_obj.state ) ) {
+      // need to add
+      input_obj.state.push( ui.item.id );
+      input_obj.add_li( ui.item.id, ui.item.value, true );
+    }
+    else {
+      // already there
+      $( '#' + input_obj.ul.id + '_' + ui.item.id ).hide().fadeIn();
+    }
   };
 }
 
