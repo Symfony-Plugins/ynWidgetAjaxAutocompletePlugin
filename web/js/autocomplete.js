@@ -116,10 +116,10 @@ YNAutocompleteInput.prototype.add_li = function( key, value, animate ) {
   text = document.createTextNode( value );
 
   if ( this.metadata.item_url ) {
-    // symfony url_for() function doesn't work with normal tokens
     url = this.metadata.item_url.replace( '9999999999', key );
     link = document.createElement( 'a' );
     link.href = url;
+    link.target = '_blank';
     link.appendChild( text );
     a_li.appendChild( link );
   }

@@ -76,7 +76,7 @@ will supply these parameters:
                * @param int $limit
                * @param array $not Exclude these IDs
                */
-              public static function retrieveForYNAjax( $term, $limit = 10, array $not = array() )
+              public static function retrieveForYnAjax( $term, $limit = 10, array $not = array() )
               {
                 $q = self::getInstance()
                   ->createQuery('p')
@@ -96,7 +96,7 @@ will supply these parameters:
   * Now, add the widget to your form, with some options. The autocomplete
 will visually replace the default widget on the page, but you must pass
 that widget as the `noscript_widget` option. This allows the plugin's
-Javascript to extract data from the stock <select> element, as well as
+Javascript to extract data from the stock `select` element, as well as
 providing for graceful degradation.
     * Supply the route of the AJAX action as `source`. Include the `not`
 parameter as comma-separated IDs, if you wish to exclude one or more records.
@@ -107,7 +107,8 @@ the record with itself.
 an integer (as opposed to something standard like `%`) in order to work with
 `url_for()`.
     * Supply a URL for a link next to the widget, e.g. to create a new
-record of the referenced class, as `aux_url` (optional)
+record of the referenced class, as `aux_url`, and the text of the link as
+`aux_link_text` (optional)
 
             /* in FooForm */
 
@@ -122,6 +123,7 @@ record of the referenced class, as `aux_url` (optional)
                 'source'          => url_for( 'ynwidgetajax/animal' ),
                 'item_url'        => url_for( 'animal/edit?id=9999999999' ),
                 'aux_url'         => url_for( 'animal/new' ),
+                'aux_link_text'   => 'Create a new animal',
               )
             );
 
@@ -130,7 +132,10 @@ your form.
 
 ## jQueryUI ##
 
-See also **LINK TO JQUERYUI HERE**
+See also
+
+  * http://jqueryui.com/
+  * http://docs.jquery.com/UI/Autocomplete
 
 Since this plugin extends the jQueryUI Autocomplete widget, you can easily
 substitute the theme of your choosing. Pass the path of your main theme CSS
