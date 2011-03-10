@@ -102,10 +102,9 @@ providing for graceful degradation.
 parameter as comma-separated IDs, if you wish to exclude one or more records.
 This is useful if you are dealing with a nested relation, to avoid associating
 the record with itself.
-    * Supply a pattern for linking to the referenced record as `item_url`. The
-`9999999999` is a placeholder for JS processing; it appears that it must be
-an integer (as opposed to something standard like `%`) in order to work with
-`url_for()`.
+    * Supply a route for linking to the referenced record as `item_route`. The
+Javascript will append `?id=12345` to the value, so your routing must be able
+to work with this.
     * Supply a URL for a link next to the widget, e.g. to create a new
 record of the referenced class, as `aux_url`, and the text of the link as
 `aux_link_text` (optional)
@@ -121,7 +120,7 @@ record of the referenced class, as `aux_url`, and the text of the link as
               array(
                 'noscript_widget' => $this->widgetSchema['animals_list'],
                 'source'          => url_for( 'ynwidgetajax/animal' ),
-                'item_url'        => url_for( 'animal/edit?id=9999999999' ),
+                'item_route'      => url_for( 'animal/edit' ),
                 'aux_url'         => url_for( 'animal/new' ),
                 'aux_link_text'   => 'Create a new animal',
               )

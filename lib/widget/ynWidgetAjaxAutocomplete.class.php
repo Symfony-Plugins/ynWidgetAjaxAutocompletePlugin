@@ -17,7 +17,7 @@ class ynWidgetAjaxAutocomplete extends sfWidgetForm
     $this->addOption( 'jqueryui_js', $jqueryui_js );
     $this->addOption( 'autocomplete_options', array() );
     $this->addOption( 'default', array() );
-    $this->addOption( 'item_url', null );
+    $this->addOption( 'item_route', null );
     $this->addOption( 'aux_url', null );
     $this->addOption( 'aux_link_text', 'Create new' );
   }
@@ -30,12 +30,14 @@ class ynWidgetAjaxAutocomplete extends sfWidgetForm
     $ret = '';
 
     $ret .= $this->getOption('noscript_widget')
-            ->render( $name, $value, $attributes, $errors );
+            ->render( $name, $value,
+              array_merge($this->attributes, $attributes), $errors );
 
     $metadata = array(
       'source'        => $this->getOption('source'),
-      'item_url'      => $this->getOption('item_url'),
+      'item_route'    => $this->getOption('item_route'),
       'options'       => $this->getOption('autocomplete_options'),
+      'attributes'    => array_merge( $this->attributes, $attributes ),
     );
 
     $meta_span_attrib = array(

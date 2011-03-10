@@ -20,6 +20,10 @@ YNAutocompleteInput.prototype.init = function()
   this.input.id        = this.base_id + '_autocomplete';
   this.input.className = 'yn-autocomplete';
 
+  for ( name in this.metadata.attributes ) {
+    this.input.setAttribute( name, this.metadata.attributes[ name ] );
+  }
+
   // hard-coded defaults
   options = {
     source:    this.metadata.source,
@@ -115,8 +119,8 @@ YNAutocompleteInput.prototype.add_li = function( key, value, animate ) {
   
   text = document.createTextNode( value );
 
-  if ( this.metadata.item_url ) {
-    url = this.metadata.item_url.replace( '9999999999', key );
+  if ( this.metadata.item_route ) {
+    url = this.metadata.item_route + '?id=' + key;
     link = document.createElement( 'a' );
     link.href = url;
     link.target = '_blank';
@@ -269,7 +273,7 @@ function yn_autocomplete_single_redirect( input_obj )
 {
   return function() {
     if ( input_obj.state[ 0 ] ) {
-      url = input_obj.metadata.item_url.replace( '9999999999', input_obj.state[0] );
+      url = input_obj.metadata.item_route + '?id=' + input_obj.state[0];
       window.open( url );
     }
   }
