@@ -12,8 +12,6 @@ class ynWidgetAjaxAutocompleteDoctrineActions extends BaseYnWidgetAjaxActions
 {
   protected function doRetrieve( $table_name, $term, $limit, array $not )
   {
-    $this->getResponse()->setContentType('application/json; charset=utf-8');
-
     $table = Doctrine::getTable( $table_name );
 
     if ( ! $table instanceof ynWidgetAjaxTable ) {

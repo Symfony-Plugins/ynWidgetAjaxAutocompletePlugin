@@ -61,7 +61,7 @@ in your application's `settings.yml`.
               # - ynWidgetAjaxAutocompletePropel
 
   * Make your `Doctrine_Table` or `*Peer` class implement
-ynWidgetAjaxTableCreate, and write `retrieveForYnAjax(). The AJAX action
+ynWidgetAjaxTable, and write `retrieveForYnAjax(). The AJAX action
 will supply these parameters:
     * `term` - the value to match
     * `limit` - the greatest number of results to return
@@ -76,7 +76,7 @@ will supply these parameters:
                * @param int $limit
                * @param array $not Exclude these IDs
                */
-              public static function retrieveForYnAjax( $term, $limit = 10, array $not = array() )
+              public function retrieveForYnAjax( $term, $limit = 10, array $not = array() )
               {
                 $q = self::getInstance()
                   ->createQuery('p')

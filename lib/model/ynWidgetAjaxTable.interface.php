@@ -7,5 +7,5 @@ interface ynWidgetAjaxTable
    * @param array int[] $not
    * @return Doctrine_Collection
    */
-  public static function retrieveForYnAjax( $term, $limit, array $not );
+  public function retrieveForYnAjax( $term, $limit, array $not );
 }
